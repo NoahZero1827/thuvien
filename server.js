@@ -7,12 +7,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Kết nối MongoDB
-mongoose.connect('mongodb://localhost:27017/librarydb', {
-  
-})
-.then(() => console.log('MongoDB Connected'))
-.catch(err => console.error('Error connecting to MongoDB:', err));
+// Cập nhật kết nối MongoDB Atlas (cloud)
+const mongoURI = 'mongodb+srv://noahzero1827:Lyphuchoa1827@cluster0.rjswawl.mongodb.net/librarydb?retryWrites=true&w=majority';
+
+mongoose.connect(mongoURI)
+  .then(() => console.log('MongoDB Connected'))
+  .catch(err => console.error('Error connecting to MongoDB:', err));
 
 // Schema sách
 const bookSchema = new mongoose.Schema({
@@ -60,13 +60,13 @@ app.get('/search', async (req, res) => {
   }
 });
 
-// Phục vụ file index.html
+// Phục vụ file index.html (frontend)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Khởi động server
-const PORT = 3000;
+const PORT = process.env.PORT || 3000; // Tự động lựa chọn cổng nếu deploy trên môi trường cloud
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
