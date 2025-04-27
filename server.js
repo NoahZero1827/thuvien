@@ -8,11 +8,13 @@ app.use(cors());
 app.use(express.json());
 
 // Kết nối MongoDB
-// Kết nối MongoDB
-mongoose.connect('mongodb+srv://noahzero1827:Lyphuchoa1827@cluster0.rjswawl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.error('Error connecting to MongoDB:', err));
-  
+mongoose.connect('mongodb://localhost:27017/librarydb', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB Connected'))
+.catch(err => console.error('Error connecting to MongoDB:', err));
+
 // Schema sách
 const bookSchema = new mongoose.Schema({
   bookId: { type: String, required: true },
