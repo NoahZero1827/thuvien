@@ -134,75 +134,86 @@
    // Định nghĩa API URL
    const apiUrl = "https://thuvien-1.onrender.com"; // Dùng cho local, thay thế bằng URL của server khi triển khai
 
-// Fetch tất cả categories từ backend
-async function getCategories() {
-  const response = await fetch(`${apiUrl}/categories`);
-  const categories = await response.json();
-  const categoryList = document.getElementById('category-list');
-  
-  categories.forEach(category => {
-    const categoryElement = document.createElement('li');
-    categoryElement.textContent = category;
-    categoryElement.addEventListener('click', () => searchByCategory(category));
-    categoryList.appendChild(categoryElement);
-  });
-}
-
-// Tìm kiếm sách theo category
-async function searchByCategory(category) {
-  const start = Date.now();
-  const response = await fetch(`${apiUrl}/search?q=&category=${encodeURIComponent(category)}`);
-  const books = await response.json();
-  const duration = Date.now() - start;
-
-  displayBooks(books);
-  document.getElementById('search-time').innerText = `Thời gian tìm kiếm: ${duration}ms`;
-}
-
-// Tìm kiếm sách theo từ khóa
-async function searchBooks() {
-  const keyword = document.getElementById('search-input').value;
-  console.log('Searching for keyword:', keyword);  // Log giá trị keyword nhập vào
-
-  const start = Date.now();
-  let response;
-
-  // Tìm kiếm theo tên sách
-  response = await fetch(`${apiUrl}/search?q=${encodeURIComponent(keyword)}&category=`);
-
-  const books = await response.json();
-  const duration = Date.now() - start;
-
-  displayBooks(books);
-  document.getElementById('search-time').innerText = `Thời gian tìm kiếm: ${duration}ms`;
-}
-
-// Hiển thị sách
-function displayBooks(books) {
-  const resultContainer = document.getElementById('results');
-  resultContainer.innerHTML = '';
-
-  if (books.length === 0) {
-    resultContainer.innerHTML = '<p>No books found</p>';
+  // Fetch tất cả categories từ backend
+  async function getCategories() {
+    const response = await fetch(`${apiUrl}/categories`);
+    const categories = await response.json();
+    const categoryList = document.getElementById('category-list');
+    
+    categories.forEach(category => {
+      const categoryElement = document.createElement('li');
+      categoryElement.textContent = category;
+      categoryElement.addEventListener('click', () => searchByCategory(category));
+      categoryList.appendChild(categoryElement);
+    });
   }
 
-  books.forEach(book => {
-    const bookElement = document.createElement('div');
-    bookElement.classList.add('book');
+  // Tìm kiếm sách theo category
+  async function searchByCategory(category) {
+    const start = Date.now();
+    const response = await fetch(`${apiUrl}/search?q=&category=${encodeURIComponent(category)}`);
+    const books = await response.json();
+    const duration = Date.now() - start;
 
-    bookElement.innerHTML = `
-      <h3>${book.bookTitle}</h3>
-      <p><strong>Tác giả:</strong> ${book.author}</p>
-      <p><strong>Category:</strong> ${book.category}</p>
-      <p><strong>Năm phát hành:</strong> ${book.year}</p>
-    `;
-    resultContainer.appendChild(bookElement);
-  });
-}
+    displayBooks(books);
+    document.getElementById('search-time').innerText = `Thời gian tìm kiếm: ${duration}ms`;
+  }
 
-// Khởi chạy lấy category
-    getCategories();
-    loadBooks();  // Gọi để tải sách từ GitHub JSON khi trang tải
+  // Tìm kiếm sách theo từ khóa
+  async function searchBooks() {
+    const keyword = document.getElementById('search-input').value;
+    console.log('Searching for keyword:', keyword);  // Log giá trị keyword nhập vào
+
+    const start = Date.now();
+    let response;
+
+    // Tìm kiếm theo tên sách
+    response = await fetch(`${apiUrl}/search?q=${encodeURIComponent(keyword)}&category=`);
+
+    const books = await response.json();
+    const duration = Date.now() - start;
+
+    displayBooks(books);
+    document.getElementById('search-time').innerText = `Thời gian tìm kiếm: ${duration}ms`;
+  }
+
+  // Hiển thị sách
+  function displayBooks(books) {
+    const resultContainer = document.getElementById('results');
+    resultContainer.innerHTML = '';
+
+    if (books.length === 0) {
+      resultContainer.innerHTML = '<p>No books found</p>';
+    }
+
+    books.forEach(book => {
+      const bookElement = document.createElement('div');
+      bookElement.classList.add('book');
+
+      bookElement.innerHTML = `
+        <h3>${book.bookTitle}</h3>
+        <p><strong>Tác giả:</strong> ${book.author}</p>
+        <p><strong>Category:</strong> ${book.category}</p>
+        <p><strong>Năm phát hành:</strong> ${book.year}</p>
+      `;
+      resultContainer.appendChild(bookElement);
+    });
+  }
+
+  // Tải tất cả sách khi trang web tải
+  async function loadBooks() {
+    const start = Date.now();
+    const response = await fetch(`${apiUrl}/search?q=&category=`); // Không tìm kiếm theo từ khóa, chỉ tải tất cả
+    const books = await response.json();
+    const duration = Date.now() - start;
+
+    displayBooks(books);
+    document.getElementById('search-time').innerText = `Thời gian tìm kiếm: ${duration}ms`;
+  }
+
+  // Khởi chạy lấy category và load sách
+  getCategories();
+  loadBooks();  // Gọi để tải sách khi trang tải
   </script>
 </body>
 </html>
