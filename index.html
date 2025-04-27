@@ -131,100 +131,76 @@
   </div>
 
   <script>
-    // Lấy dữ liệu từ file JSON trên GitHub
-    async function loadBooks() {
-      const response = await fetch('https://raw.githubusercontent.com/NoahZero1827/thuvien/main/librarydb.books.json');
-      const books = await response.json();
-      
-      // Hiển thị sách lên trang web
-      const resultContainer = document.getElementById('results');
-      resultContainer.innerHTML = '';
+   // Định nghĩa API URL
+const apiUrl = "http://localhost:3000";  // Dùng cho local, thay thế bằng URL của server khi triển khai
 
-      if (books.length === 0) {
-        resultContainer.innerHTML = '<p>No books found</p>';
-      }
+// Fetch tất cả categories từ backend
+async function getCategories() {
+  const response = await fetch(`${apiUrl}/categories`);
+  const categories = await response.json();
+  const categoryList = document.getElementById('category-list');
+  
+  categories.forEach(category => {
+    const categoryElement = document.createElement('li');
+    categoryElement.textContent = category;
+    categoryElement.addEventListener('click', () => searchByCategory(category));
+    categoryList.appendChild(categoryElement);
+  });
+}
 
-      books.forEach(book => {
-        const bookElement = document.createElement('div');
-        bookElement.classList.add('book');
+// Tìm kiếm sách theo category
+async function searchByCategory(category) {
+  const start = Date.now();
+  const response = await fetch(`${apiUrl}/search?q=&category=${encodeURIComponent(category)}`);
+  const books = await response.json();
+  const duration = Date.now() - start;
 
-        bookElement.innerHTML = `
-          <h3>${book.bookTitle}</h3>
-          <p><strong>Tác giả:</strong> ${book.author}</p>
-          <p><strong>Category:</strong> ${book.category}</p>
-          <p><strong>Năm phát hành:</strong> ${book.year}</p>
-        `;
-        resultContainer.appendChild(bookElement);
-      });
-    }
+  displayBooks(books);
+  document.getElementById('search-time').innerText = `Thời gian tìm kiếm: ${duration}ms`;
+}
 
-    // Lấy danh sách các category từ backend (nếu có)
-    async function getCategories() {
-      const response = await fetch('/categories');
-      const categories = await response.json();
-      const categoryList = document.getElementById('category-list');
-      
-      categories.forEach(category => {
-        const categoryElement = document.createElement('li');
-        categoryElement.textContent = category;
-        categoryElement.addEventListener('click', () => searchByCategory(category));
-        categoryList.appendChild(categoryElement);
-      });
-    }
+// Tìm kiếm sách theo từ khóa
+async function searchBooks() {
+  const keyword = document.getElementById('search-input').value;
+  console.log('Searching for keyword:', keyword);  // Log giá trị keyword nhập vào
 
-    // Tìm sách theo category
-    async function searchByCategory(category) {
-      const start = Date.now();
-      const response = await fetch(`/search?q=&category=${encodeURIComponent(category)}`);
-      const books = await response.json();
-      const duration = Date.now() - start;
+  const start = Date.now();
+  let response;
 
-      displayBooks(books);
-      document.getElementById('search-time').innerText = `Thời gian tìm kiếm: ${duration}ms`;
-    }
+  // Tìm kiếm theo tên sách
+  response = await fetch(`${apiUrl}/search?q=${encodeURIComponent(keyword)}&category=`);
 
-    // Tìm sách theo từ khóa
-    async function searchBooks() {
-      const keyword = document.getElementById('search-input').value;
-      console.log('Searching for keyword:', keyword);  // Log giá trị keyword nhập vào
+  const books = await response.json();
+  const duration = Date.now() - start;
 
-      const start = Date.now();
-      let response;
+  displayBooks(books);
+  document.getElementById('search-time').innerText = `Thời gian tìm kiếm: ${duration}ms`;
+}
 
-      // Tìm kiếm theo tên sách
-      response = await fetch(`/search?q=${encodeURIComponent(keyword)}&category=`);
+// Hiển thị sách
+function displayBooks(books) {
+  const resultContainer = document.getElementById('results');
+  resultContainer.innerHTML = '';
 
-      const books = await response.json();
-      const duration = Date.now() - start;
+  if (books.length === 0) {
+    resultContainer.innerHTML = '<p>No books found</p>';
+  }
 
-      displayBooks(books);
-      document.getElementById('search-time').innerText = `Thời gian tìm kiếm: ${duration}ms`;
-    }
+  books.forEach(book => {
+    const bookElement = document.createElement('div');
+    bookElement.classList.add('book');
 
-    // Hiển thị sách
-    function displayBooks(books) {
-      const resultContainer = document.getElementById('results');
-      resultContainer.innerHTML = '';
+    bookElement.innerHTML = `
+      <h3>${book.bookTitle}</h3>
+      <p><strong>Tác giả:</strong> ${book.author}</p>
+      <p><strong>Category:</strong> ${book.category}</p>
+      <p><strong>Năm phát hành:</strong> ${book.year}</p>
+    `;
+    resultContainer.appendChild(bookElement);
+  });
+}
 
-      if (books.length === 0) {
-        resultContainer.innerHTML = '<p>No books found</p>';
-      }
-
-      books.forEach(book => {
-        const bookElement = document.createElement('div');
-        bookElement.classList.add('book');
-
-        bookElement.innerHTML = `
-          <h3>${book.bookTitle}</h3>
-          <p><strong>Tác giả:</strong> ${book.author}</p>
-          <p><strong>Category:</strong> ${book.category}</p>
-          <p><strong>Năm phát hành:</strong> ${book.year}</p>
-        `;
-        resultContainer.appendChild(bookElement);
-      });
-    }
-
-    // Khởi chạy lấy category
+// Khởi chạy lấy category
     getCategories();
     loadBooks();  // Gọi để tải sách từ GitHub JSON khi trang tải
   </script>
