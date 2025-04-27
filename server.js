@@ -9,8 +9,7 @@ app.use(express.json());
 
 // Kết nối MongoDB
 mongoose.connect('mongodb://localhost:27017/librarydb', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+  
 })
 .then(() => console.log('MongoDB Connected'))
 .catch(err => console.error('Error connecting to MongoDB:', err));
