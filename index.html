@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library Search</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      position: relative;
+    }
+
+    /* Thanh tìm kiếm */
+    #search-container {
+      margin: 30px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    #search-input {
+      padding: 10px;
+      width: 300px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    #search-container button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #search-container button:hover {
+      background-color: #45a049;
+    }
+
+    /* Danh sách category */
+    #category-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+      padding: 0;
+    }
+
+    #category-list li {
+      list-style: none;
+      cursor: pointer;
+      padding: 10px 20px;
+      background-color: #f0f0f0;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      transition: background-color 0.3s;
+    }
+
+    #category-list li:hover {
+      background-color: #ccc;
+    }
+
+    /* Kết quả tìm kiếm */
+    #results {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 1200px; /* fix rộng tối đa */
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* CHIA CỘT */
+      gap: 20px;
+      padding: 10px;
+    }
+
+    .book {
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s;
+    }
+
+    .book:hover {
+      transform: translateY(-5px);
+      background-color: #f1f1f1;
+    }
+
+    /* Thời gian tìm kiếm */
+    #search-time {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-weight: bold;
+      background-color: #f0f0f0;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <!-- Thanh tìm kiếm -->
+  <div id="search-container">
+    <input type="text" id="search-input" placeholder="Tìm kiếm sách theo tên..." />
+    <button onclick="searchBooks()">Tìm kiếm</button>
+  </div>
+
+  <!-- Danh sách Category -->
+  <div>
+    <h3>Categories</h3>
+    <ul id="category-list"></ul>
+  </div>
+
+  <!-- Kết quả tìm kiếm sách -->
+  <div>
+    <h3>Book Results</h3>
+    <div id="results"></div>
+    <p id="search-time"></p>
+  </div>
+
+  <script>
+    // Fetch all categories from the backend
+    async function getCategories() {
+      const response = await fetch('/categories');
+      const categories = await response.json();
+      const categoryList = document.getElementById('category-list');
+      
+      categories.forEach(category => {
+        const categoryElement = document.createElement('li');
+        categoryElement.textContent = category;
+        categoryElement.addEventListener('click', () => searchByCategory(category));
+        categoryList.appendChild(categoryElement);
+      });
+    }
+
+    // Tìm sách theo category
+    async function searchByCategory(category) {
+      const start = Date.now();
+      const response = await fetch(`/search?q=&category=${encodeURIComponent(category)}`);
+      const books = await response.json();
+      const duration = Date.now() - start;
+
+      displayBooks(books);
+      document.getElementById('search-time').innerText = `Thời gian tìm kiếm: ${duration}ms`;
+    }
+
+    // Tìm sách theo từ khóa
+    async function searchBooks() {
+      const keyword = document.getElementById('search-input').value;
+      console.log('Searching for keyword:', keyword);  // Log giá trị keyword nhập vào
+
+      const start = Date.now();
+      let response;
+
+      // Tìm kiếm theo tên sách
+      response = await fetch(`/search?q=${encodeURIComponent(keyword)}&category=`);
+
+      const books = await response.json();
+      const duration = Date.now() - start;
+
+      displayBooks(books);
+      document.getElementById('search-time').innerText = `Thời gian tìm kiếm: ${duration}ms`;
+    }
+
+    // Hiển thị sách
+    function displayBooks(books) {
+      const resultContainer = document.getElementById('results');
+      resultContainer.innerHTML = '';
+
+      if (books.length === 0) {
+        resultContainer.innerHTML = '<p>No books found</p>';
+      }
+
+      books.forEach(book => {
+        const bookElement = document.createElement('div');
+        bookElement.classList.add('book');
+
+        bookElement.innerHTML = `
+          <h3>${book.bookTitle}</h3>
+          <p><strong>Tác giả:</strong> ${book.author}</p>
+          <p><strong>Category:</strong> ${book.category}</p>
+          <p><strong>Năm phát hành:</strong> ${book.year}</p>
+        `;
+        resultContainer.appendChild(bookElement);
+      });
+    }
+
+    // Khởi chạy lấy category
+    getCategories();
+  </script>
+</body>
+</html>
