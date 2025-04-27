@@ -133,7 +133,7 @@
   <script>
     // Lấy dữ liệu từ file JSON trên GitHub
     async function loadBooks() {
-      const response = await fetch('https://github.com/NoahZero1827/thuvien/blob/main/librarydb.books.json');
+      const response = await fetch('https://raw.githubusercontent.com/NoahZero1827/thuvien/main/librarydb.books.json');
       const books = await response.json();
       
       // Hiển thị sách lên trang web
