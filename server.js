@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 // Kết nối MongoDB
-mongoose.connect('mongodb://localhost:27017/librarydb', {
+mongoose.connect('mongodb+srv://noahzero1827:Lyphuchoa1827@cluster0.rjswawl.mongodb.net/', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
