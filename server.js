@@ -53,7 +53,7 @@ app.get('/search', async (req, res) => {
       query.category = category;
     }
 
-    const books = await Book.find(query).limit(100); // Giới hạn 100 kết quả
+    const books = await Book.find(query).limit(1000); // Giới hạn 100 kết quả
     const serverTime = Date.now() - start;
 
     res.json({ books, serverTime });

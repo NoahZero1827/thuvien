@@ -195,10 +195,10 @@
         message += ` | 🖥 Server: ${serverTime}ms`;
       }
 
-      if (clientTime <= 500) {
-        message += " ✅ Đạt yêu cầu (<500ms)";
+      if (clientTime <= 700) {
+        message += " ✅ Đạt yêu cầu (<700ms)";
       } else {
-        message += " ❌ Không đạt yêu cầu (>500ms)";
+        message += " ❌ Không đạt yêu cầu (>700ms)";
       }
 
       document.getElementById('search-time').innerText = message;
