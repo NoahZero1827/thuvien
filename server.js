@@ -7,14 +7,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Cập nhật kết nối MongoDB Atlas (cloud)
+// Kết nối MongoDB Atlas
 const mongoURI = 'mongodb+srv://noahzero1827:Lyphuchoa1827@cluster0.rjswawl.mongodb.net/librarydb?retryWrites=true&w=majority';
 
 mongoose.connect(mongoURI)
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.error('Error connecting to MongoDB:', err));
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
-// Schema sách
+// Định nghĩa schema sách
 const bookSchema = new mongoose.Schema({
   bookId: { type: String, required: true },
   bookTitle: String,
@@ -22,12 +22,11 @@ const bookSchema = new mongoose.Schema({
   year: Number,
   category: String
 });
-
-bookSchema.index({ bookTitle: 'text' }); // Index cho tìm kiếm
+bookSchema.index({ bookTitle: 'text' }); // Hỗ trợ tìm kiếm
 
 const Book = mongoose.model('Book', bookSchema);
 
-// API lấy danh sách category
+// Lấy danh sách category duy nhất
 app.get('/categories', async (req, res) => {
   try {
     const categories = await Book.distinct('category');
@@ -37,10 +36,12 @@ app.get('/categories', async (req, res) => {
   }
 });
 
-// API tìm kiếm sách
+// API tìm kiếm sách (theo từ khóa và/hoặc category)
 app.get('/search', async (req, res) => {
   const keyword = req.query.q || '';
   const category = req.query.category || '';
+
+  const start = Date.now(); // Bắt đầu tính thời gian xử lý
 
   try {
     let query = {};
@@ -52,21 +53,23 @@ app.get('/search', async (req, res) => {
       query.category = category;
     }
 
-    const books = await Book.find(query).limit(100);
-    res.json(books);
+    const books = await Book.find(query).limit(100); // Giới hạn 100 kết quả
+    const serverTime = Date.now() - start;
+
+    res.json({ books, serverTime });
   } catch (err) {
     console.error('Error:', err);
     res.status(500).json({ message: err.message });
   }
 });
 
-// Phục vụ file index.html (frontend)
+// Gửi file giao diện nếu chạy local
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Khởi động server
-const PORT = process.env.PORT || 3000; // Tự động lựa chọn cổng nếu deploy trên môi trường cloud
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
 });
