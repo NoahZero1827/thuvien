@@ -122,6 +122,7 @@
   <!-- Kết quả tìm kiếm sách -->
   <div>
     <h3>Book Results</h3>
+    <p id="result-count"></p>
     <div id="results"></div>
     <p id="search-time"></p>
   </div>
@@ -169,12 +170,16 @@
 
     function displayBooks(books) {
       const resultContainer = document.getElementById('results');
+      const resultCount = document.getElementById('result-count');
       resultContainer.innerHTML = '';
 
       if (!books || books.length === 0) {
         resultContainer.innerHTML = '<p>No books found</p>';
+        resultCount.innerText = 'Số lượng sách tìm thấy: 0';
         return;
       }
+
+      resultCount.innerText = `Số lượng sách tìm thấy: ${books.length}`;
 
       books.forEach(book => {
         const div = document.createElement('div');
